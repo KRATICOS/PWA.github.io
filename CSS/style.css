@@ -1,0 +1,272 @@
+/* ================================
+   CONFIGURACIÓN GENERAL
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5eee6;
+    color: #3e2723;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   CONTENEDOR PRINCIPAL
+================================ */
+
+main {
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   NAVBAR
+================================ */
+
+nav {
+    background: linear-gradient(135deg, #4e342e, #795548);
+    color: white;
+    padding: 20px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+nav h1 {
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+nav li {
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav li:hover {
+    color: #ffcc80;
+    transform: translateY(-2px);
+}
+
+
+/* ================================
+   CONTENEDOR DE CARDS
+================================ */
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+
+/* ================================
+   CARD DE CAFÉ
+================================ */
+
+.coffee-card {
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+
+    box-shadow: 0 8px 20px rgba(62, 39, 35, 0.15);
+
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.coffee-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(62, 39, 35, 0.25);
+}
+
+
+/* ================================
+   IMAGEN
+================================ */
+
+.coffee-card img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* ================================
+   TÍTULO
+================================ */
+
+.coffee-card h2 {
+    font-size: 22px;
+    margin: 18px 20px 10px;
+    color: #4e342e;
+}
+
+
+/* ================================
+   DESCRIPCIÓN
+================================ */
+
+.coffee-card p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #6d4c41;
+
+    margin: 0 20px 20px;
+    
+    flex-grow: 1;
+}
+
+
+/* ================================
+   BOTÓN
+================================ */
+
+.coffee-card button {
+    margin: 0 20px 20px;
+
+    padding: 12px 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #6d4c41;
+    color: white;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.coffee-card button:hover {
+    background: #3e2723;
+    transform: scale(1.03);
+}
+
+.coffee-card button:active {
+    transform: scale(0.97);
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 768px) {
+
+    nav {
+        padding: 18px 5%;
+    }
+
+    nav h1 {
+        font-size: 23px;
+    }
+
+    nav ul {
+        gap: 15px;
+    }
+
+    nav li {
+        font-size: 14px;
+    }
+
+    .container {
+        width: 92%;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .coffee-card img {
+        height: 180px;
+    }
+}
+
+
+/* ================================
+   CELULAR
+================================ */
+
+@media (max-width: 520px) {
+
+    nav {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    nav h1 {
+        font-size: 25px;
+    }
+
+    nav ul {
+        gap: 20px;
+    }
+
+    .container {
+        width: 90%;
+        grid-template-columns: 1fr;
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .coffee-card img {
+        height: 220px;
+    }
+
+    .coffee-card h2 {
+        font-size: 21px;
+    }
+
+    .coffee-card p {
+        font-size: 14px;
+    }
+}
+
+
+/* ================================
+   EFECTO SUAVE AL CARGAR
+================================ */
+
+.coffee-card {
+    animation: aparecer 0.5s ease;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
