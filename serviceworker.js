@@ -1,4 +1,4 @@
-const CACHE_NAME = "coffee-pwa-v1";
+const CACHE_NAME = "coffee-pwa-v2";
 
 const ARCHIVOS = [
     "./",
@@ -11,87 +11,113 @@ const ARCHIVOS = [
     "./images/icons/icon-96x96 (1).png",
     "./images/icons/icon-128x128 (1).png",
     "./images/icons/icon-144x144 (1).png",
-    "./images/icons/icon-152x152 (1).png"
-
-
+    "./images/icons/icon-152x152 (1).png",
+    "./images/icons/icon-192x192 (1).png",
+    "./images/icons/icon-512x512 (1).png"
 ];
 
-// Instalación: precarga de recursos estáticos
+// Instalación: guardar los recursos disponibles
 self.addEventListener("install", event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ARCHIVOS))
-    );
+            .then(async cache => {
+                await Promise.all(
+                    ARCHIVOS.map(async archivo => {
+                        try {
+                            const respuesta = await fetch(archivo);
 
-    self.skipWaiting();
+                            if (respuesta.ok) {
+                                await cache.put(archivo, respuesta);
+                            } else {
+                                console.warn(
+                                    "No se pudo guardar:",
+                                    archivo,
+                                    respuesta.status
+                                );
+                            }
+                        } catch (error) {
+                            console.warn(
+                                "Error al cargar:",
+                                archivo,
+                                error
+                            );
+                        }
+                    })
+                );
+            })
+            .then(() => self.skipWaiting())
+    );
 });
 
-// Activación: elimina cachés antiguos
+// Activación: eliminar cachés anteriores
 self.addEventListener("activate", event => {
     event.waitUntil(
-        caches.keys().then(keys =>
-            Promise.all(
-                keys
-                    .filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
+        caches.keys()
+            .then(keys =>
+                Promise.all(
+                    keys
+                        .filter(key => key !== CACHE_NAME)
+                        .map(key => caches.delete(key))
+                )
             )
-        )
+            .then(() => self.clients.claim())
     );
-
-    self.clients.claim();
 });
 
-// Cache First: primero busca en caché
-function cacheFirst(request) {
-    return caches.match(request).then(response => {
-        if (response) {
-            return response;
+// Cache First: primero buscar en caché
+async function cacheFirst(request) {
+    const respuestaCache = await caches.match(request);
+
+    if (respuestaCache) {
+        return respuestaCache;
+    }
+
+    try {
+        const respuestaRed = await fetch(request);
+
+        if (respuestaRed.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, respuestaRed.clone());
         }
 
-        return fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
-                return caches.open(CACHE_NAME).then(cache => {
-                    cache.put(request, networkResponse.clone());
-                    return networkResponse;
-                });
-            }
-
-            return networkResponse;
+        return respuestaRed;
+    } catch (error) {
+        return new Response("Recurso no disponible sin conexión.", {
+            status: 503,
+            statusText: "Service Unavailable"
         });
-    });
+    }
 }
 
-// Network First: primero consulta la red
-function networkFirst(request) {
-    return fetch(request)
-        .then(networkResponse => {
-            if (networkResponse.ok) {
-                return caches.open(CACHE_NAME).then(cache => {
-                    cache.put(request, networkResponse.clone());
-                    return networkResponse;
-                });
+// Network First: primero consultar la red
+async function networkFirst(request) {
+    try {
+        const respuestaRed = await fetch(request);
+
+        if (respuestaRed.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, respuestaRed.clone());
+        }
+
+        return respuestaRed;
+    } catch (error) {
+        const respuestaCache = await caches.match(request);
+
+        if (respuestaCache) {
+            return respuestaCache;
+        }
+
+        return new Response(
+            "Página no disponible sin conexión.",
+            {
+                status: 503,
+                statusText: "Service Unavailable"
             }
-
-            return networkResponse;
-        })
-        .catch(() => {
-            return caches.match(request).then(response => {
-                if (response) {
-                    return response;
-                }
-
-                return new Response(
-                    "Sin conexión y recurso no disponible.",
-                    {
-                        status: 503,
-                        statusText: "Service Unavailable"
-                    }
-                );
-            });
-        });
+        );
+    }
 }
 
-// Selección de estrategia de caché
+// Selección de estrategia
 self.addEventListener("fetch", event => {
     if (event.request.method !== "GET") {
         return;
@@ -99,12 +125,12 @@ self.addEventListener("fetch", event => {
 
     const url = new URL(event.request.url);
 
-    // Ignorar solicitudes de otros dominios
+    // Ignorar solicitudes externas
     if (url.origin !== self.location.origin) {
         return;
     }
 
-    // Network First para páginas HTML
+    // Network First para páginas
     if (
         event.request.mode === "navigate" ||
         url.pathname.endsWith(".html")
