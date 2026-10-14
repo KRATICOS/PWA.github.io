@@ -6,8 +6,14 @@ const ARCHIVOS = [
     "./css/style.css",
     "./js/app.js",
     "./manifest.json",
-    "./images/coffee/coffee1.jpg",
-    "./images/iconos/icon72x.png"
+    "./images/cafe1.jpg",
+    "./images/icons/icon-72x72 (1).png",
+    "./images/icons/icon-96x96 (1).png",
+    "./images/icons/icon-128x128 (1).png",
+    "./images/icons/icon-144x144 (1).png",
+    "./images/icons/icon-152x152 (1).png"
+
+
 ];
 
 // Instalación: precarga de recursos estáticos
