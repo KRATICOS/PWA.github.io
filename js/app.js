@@ -93,55 +93,88 @@ const cafes = [
 
 const container = document.querySelector(".container");
 
-// Función para mostrar la lista principal de cafés
-function mostrarCatalog() {
-    container.innerHTML = ""; // Limpiar contenedor
-    container.style.display = "grid"; // O el estilo de diseño que prefieras
+if (container) {
+    // Mostrar el catálogo
+    function mostrarCatalog() {
+        sessionStorage.removeItem("cafeSeleccionado");
 
-    cafes.forEach((cafe, index) => {
-        const card = document.createElement("div");
-        card.classList.add("coffee-card");
+        container.innerHTML = "";
+        container.style.display = "grid";
 
-        card.innerHTML = `
-            <img src="${cafe.imagen}" alt="${cafe.nombre}">
-            <h2>${cafe.nombre}</h2>
-            <p>${cafe.descripcion}</p>
-            <button data-index="${index}" class="btn-ver-mas">Ver más</button>
+        cafes.forEach((cafe, index) => {
+            const card = document.createElement("div");
+            card.classList.add("coffee-card");
+
+            card.innerHTML = `
+                <img src="${cafe.imagen}" alt="${cafe.nombre}">
+                <h2>${cafe.nombre}</h2>
+                <p>${cafe.descripcion}</p>
+                <button data-index="${index}" class="btn-ver-mas">
+                    Ver más
+                </button>
+            `;
+
+            container.appendChild(card);
+        });
+
+        container.querySelectorAll(".btn-ver-mas").forEach(button => {
+            button.addEventListener("click", () => {
+                const index = Number(button.dataset.index);
+                mostrarDetalle(index);
+            });
+        });
+    }
+
+    // Mostrar detalles del café seleccionado
+    function mostrarDetalle(index) {
+        const cafe = cafes[index];
+
+        if (!cafe) {
+            mostrarCatalog();
+            return;
+        }
+
+        sessionStorage.setItem("cafeSeleccionado", String(index));
+
+        container.style.display = "block";
+
+        container.innerHTML = `
+            <div class="coffee-detalle-card"
+                 style="padding:20px;text-align:center;">
+
+                <img
+                    src="${cafe.imagen}"
+                    alt="${cafe.nombre}"
+                    style="max-width:300px;width:100%;border-radius:8px;"
+                >
+
+                <h2>${cafe.nombre}</h2>
+
+                <p><strong>Descripción:</strong> ${cafe.descripcion}</p>
+                <p><strong>Origen:</strong> ${cafe.origen}</p>
+                <p><strong>Tipo de tueste:</strong> ${cafe.tueste}</p>
+                <p><strong>Notas de cata:</strong> ${cafe.notas}</p>
+                <p><strong>Precio:</strong> ${cafe.precio}</p>
+
+                <button id="btn-volver"
+                        style="padding:10px 20px;cursor:pointer;">
+                    Volver al catálogo
+                </button>
+            </div>
         `;
 
-        container.appendChild(card);
-    });
-
-    // Agregar eventos a los botones "Ver más"
-    document.querySelectorAll(".btn-ver-mas").forEach(button => {
-        button.addEventListener("click", (e) => {
-            const index = e.target.getAttribute("data-index");
-            mostrarDetalle(cafes[index]);
+        document.getElementById("btn-volver").addEventListener("click", () => {
+            mostrarCatalog();
         });
-    });
-}
+    }
 
-// Función para mostrar la vista detallada (Card expandida)
-function mostrarDetalle(cafe) {
-    container.innerHTML = `
-        <div class="coffee-detalle-card" style="grid-column: 1 / -1; padding: 20px; text-align: center;">
-            <img src="${cafe.imagen}" alt="${cafe.nombre}" style="max-width: 300px; border-radius: 8px;">
-            <h2>${cafe.nombre}</h2>
-            <p><strong>Descripción:</strong> ${cafe.descripcion}</p>
-            <p><strong>Origen:</strong> ${cafe.origen}</p>
-            <p><strong>Tipo de tueste:</strong> ${cafe.tueste}</p>
-            <p><strong>Notas de cata:</strong> ${cafe.notas}</p>
-            <p><strong>Precio:</strong> ${cafe.precio}</p>
-            <br>
-            <button id="btn-volver" style="padding: 10px 20px; cursor: pointer;">Volver al catálogo</button>
-        </div>
-    `;
+    // Restaurar los detalles al recargar la página
+    // durante la misma sesión.
+    const cafeGuardado = sessionStorage.getItem("cafeSeleccionado");
 
-    // Botón para regresar al catálogo principal
-    document.getElementById("btn-volver").addEventListener("click", () => {
+    if (cafeGuardado !== null) {
+        mostrarDetalle(Number(cafeGuardado));
+    } else {
         mostrarCatalog();
-    });
+    }
 }
-
-// Inicializar la aplicación mostrando el catálogo
-mostrarCatalog();
